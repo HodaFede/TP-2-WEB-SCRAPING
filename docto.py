@@ -49,7 +49,7 @@ def get_user_inputs():
 # Navigateur Selenium
 def setup_driver():
     options = Options()
-    # options.add_argument("--headless")  # Décommente pour le headless
+    # options.add_argument("--headless")
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
     driver = webdriver.Chrome(options=options)
@@ -59,10 +59,10 @@ def setup_driver():
 def find_search_field(driver, wait):
     try:
         search_input = wait.until(EC.presence_of_element_located((By.NAME, 'search_query')))
-        print("✅ Champ de recherche trouvé (méthode 1).")
+        print(" Champ de recherche trouvé (méthode 1).")
     except:
         search_input = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, 'input[placeholder*=\"Quoi\"]')))
-        print("✅ Champ de recherche trouvé (méthode alternative).")
+        print(" Champ de recherche trouvé (méthode alternative).")
     return search_input
 
 #Extraire les infos d'un médecin 
@@ -136,7 +136,7 @@ def scrape_results(driver, user_inputs, wait):
                 if apply_filters(data, user_inputs):
                     doctors_data.append(data)
             except Exception as e:
-                print(f"⚠️ Erreur lors de l'extraction : {e}")
+                print(f" Erreur lors de l'extraction : {e}")
 
         
         try:
@@ -144,12 +144,12 @@ def scrape_results(driver, user_inputs, wait):
             if "disabled" not in next_button.get_attribute("class"):
                 next_button.click()
                 time.sleep(2)
-                print("➡️ Passage à la page suivante.")
+                print("Passage à la page suivante.")
             else:
-                print("🚫 Pas de page suivante disponible.")
+                print(" Pas de page suivante disponible.")
                 break
         except:
-            print("🚫 Bouton page suivante non trouvé.")
+            print("Bouton page suivante non trouvé.")
             break
 
     return doctors_data
@@ -165,7 +165,7 @@ def save_to_csv(data_list, filename="doctors_results.csv"):
         dict_writer = csv.DictWriter(f, fieldnames=keys)
         dict_writer.writeheader()
         dict_writer.writerows(data_list)
-    print(f"✅ Données sauvegardées dans {filename}")
+    print(f"Données sauvegardées dans {filename}")
 
 # Recherche et scraper
 def main():
@@ -174,13 +174,13 @@ def main():
     wait = WebDriverWait(driver, 10)
     try:
         driver.get("https://www.doctolib.fr")
-        print("🔎 Page Doctolib ouverte.")
+        print("Page Doctolib ouverte.")
 
-        # Gérer les cookies
+        # gestion  cookies
         try:
             cookies_button = wait.until(EC.element_to_be_clickable((By.ID, 'didomi-notice-agree-button')))
             cookies_button.click()
-            print("✅ Cookies acceptés.")
+            print("Cookies acceptés.")
         except:
             print("Pas de bandeau cookies détecté.")
 
@@ -189,7 +189,7 @@ def main():
         search_input.send_keys(user_inputs["specialty"])
         search_input.send_keys(Keys.RETURN)
 
-        # Attendre résultats + scraper
+        # Attendre resultats + scraper
         doctors_data = scrape_results(driver, user_inputs, wait)
         save_to_csv(doctors_data)
 
@@ -197,7 +197,7 @@ def main():
         print(f" Erreur : {e}")
         with open("debug_page.html", "w", encoding="utf-8") as f:
             f.write(driver.page_source)
-        print("⚠️ Page sauvegardée dans debug_page.html pour diagnostic.")
+        print("Page sauvegardée dans debug_page.html pour diagnostic.")
     finally:
         driver.quit()
 
